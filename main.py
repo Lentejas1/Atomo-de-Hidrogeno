@@ -1,60 +1,42 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import axes3d
-from matplotlib import cm
-from matplotlib.ticker import LinearLocator
 from numpy import exp, sin, cos, pi
+from initial_psi import *
+from animations import *
+from functions import *
+from mpl_toolkits import mplot3d
+plt.style.use("science")
 
-import initial_psi
-m = 9.1093837015 / 10 ** 31
-e = 1.602176634 / pow(10, 19)
-epsilon_0 = 625000 / (22468879468420441 * np.pi)
-alpha = m * pow(e, 2) / (4 * np.pi * epsilon_0)
-p_0 = m * pow(e, 2) / (4 * np.pi * epsilon_0 * alpha)
-dx = .01
-sigma = 0.5
+k_0 = 0
+sigma = 1
 x_0, y_0 = 0, 0
 L = 100
+dx = 0.5
 T = 5
+l = 10
 
-psi = initial_psi.gaussian_package(0, 0, 0, L, dx,sigma)
-print(psi)
+psi = gaussian_package(x_0, y_0, k_0, L, dx, sigma)
+fig = plt.figure(figsize=(16, 9))
+ax = plt.axes(projection='3d')
+L = np.shape(psi)[0]
+X = np.linspace(-l, l, L)
+Y = np.linspace(-l, l, L)
+X, Y = np.meshgrid(X, Y)
+Z = ax.contour3D(X, Y, psi, 1000, cmap=plt.cm.YlGnBu_r)
+cbar = fig.colorbar(Z, shrink=0.5, aspect=5)
+cbar.set_label("$\lvert\Psi\\rvert^2$")
+ax.set_zlabel("$\lvert\Psi\\rvert^2$")
+ax.set_ylabel("$y$")
+ax.set_xlabel("$x$")
+
+plt.show()
+
+#animate(s=2)
 
 
 
 with open("inicial_state.txt", "w") as f:
-    for i in range(-L, L + 1):
-        print(i)
-        for j in range(-L + 1, L + 1):
+    for i in range(np.shape(psi)[0]):
+        for j in range(np.shape(psi)[0]):
             f.write(f"{str(psi[i][j])}\t")
         f.write("\n")
-
-X = np.linspace(-5, 5, 2 * L + 1)
-Y = np.linspace(-5, 5, 2 * L + 1)
-X, Y = np.meshgrid(X, Y)
-
-
-def prob(psi):
-    p = np.zeros((2 * L + 1, 2 * L + 1))
-    for i in range(-L, L + 1):
-        for j in range(-L + 1, L + 1):
-            p[i][j] = np.vdot(psi[i][j], psi[i][j])
-    return p
-
-
-fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-
-# Plot the surface.
-surf = ax.plot_surface(X, Y, prob(psi), cmap=cm.coolwarm,
-                       linewidth=0, antialiased=False)
-
-# Customize the z axis.
-ax.set_zlim(-1.01, 1.01)
-ax.zaxis.set_major_locator(LinearLocator(10))
-# A StrMethodFormatter is used automatically
-ax.zaxis.set_major_formatter('{x:.02f}')
-
-# Add a color bar which maps values to colors.
-fig.colorbar(surf, shrink=0.5, aspect=5)
-
-plt.show()
