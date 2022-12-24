@@ -3,6 +3,7 @@ from matplotlib.animation import FuncAnimation
 from initial_psi import *
 from functions import *
 
+
 def heatmap(psi, l):
     """
     :param psi: Wave function.
@@ -20,6 +21,7 @@ def heatmap(psi, l):
     cbar = plt.colorbar()
     cbar.set_label("$\lvert\Psi\\rvert^2$")
     plt.show()
+
 
 def plot3d(psi, l):
     """
@@ -41,13 +43,10 @@ def plot3d(psi, l):
 
 
 def create_frame(step, ax):
-
     ax.cla()
     psi = gaussian_package(step, step, 0, 100, 0.1, 0.5)
     L = np.shape(psi)[0]
-    X = np.linspace(-5, 5, L)
-    Y = np.linspace(-5, 5, L)
-    X, Y = np.meshgrid(X, Y)
+    X, Y = np.meshgrid(np.linspace(-10, 10, L), np.linspace(-10, 10, L))
     plt.pcolormesh(X, Y, prob(psi))
 
     plt.ylabel("$y$")

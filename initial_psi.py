@@ -1,7 +1,17 @@
 from numpy import zeros, exp, pi
 
 
-def gaussian_package(x_0, y_0, p_0, L, dx, sigma):
+def gaussian_package(x_0, y_0, k_0, L, dx, sigma):
+    """
+    :param x_0: Initial x coordinate.
+    :param y_0: Initial y coordinate.
+    :param k_0: Initial wave number (i.d.: p/hbar).
+    :param L: Number of spatial steps per dimenion: L x L canvas.
+    :param dx: Space step.
+    :param sigma: Initial standard deviation of the gaussian package. Note that it's the same for both spatial
+    dimensions.
+    :return: A gaussian package centered in x_0, y_0 with a momentum kick of k_0 * hbar.
+    """
     psi_inicial = zeros((L, L), complex)  # x, y, t
     for xs in range(L):
         for ys in range(L):
