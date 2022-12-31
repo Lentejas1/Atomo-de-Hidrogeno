@@ -10,17 +10,19 @@ def heatmap(psi, l):
     :param l: Limits of our canvas. Range = (-l,l)
     :return: Heatmap with probability density.
     """
+    plt.close()
     fig = plt.figure(figsize=(16, 9))
     L = np.shape(psi)[0]
     X, Y = np.meshgrid(np.linspace(-l, l, L), np.linspace(-l, l, L))
     Z = prob(psi)
-    plt.pcolormesh(X, Y, Z)
+    plt.pcolormesh(X, Y, Z) # , vmin=0, vmax=0.65
     plt.ylabel("$y$")
     plt.xlabel("$x$")
     plt.axis('scaled')
-    cbar = plt.colorbar()
-    cbar.set_label("$\lvert\Psi\\rvert^2$")
-    plt.show()
+    #cbar = plt.colorbar()
+    #cbar.set_label("$\lvert\Psi\\rvert^2$")
+    return fig
+    #plt.show()
 
 
 def plot3d(psi, l):
@@ -34,12 +36,12 @@ def plot3d(psi, l):
     L = np.shape(psi)[0]
     X, Y = np.meshgrid(np.linspace(-l, l, L), np.linspace(-l, l, L))
     Z = ax.contour3D(X, Y, prob(psi), 1000, cmap=plt.cm.YlGnBu_r)
-    cbar = fig.colorbar(Z, shrink=0.5, aspect=5)
-    cbar.set_label("$\lvert\Psi\\rvert^2$")
+    #cbar = fig.colorbar(Z, shrink=0.5, aspect=5)
+    #cbar.set_label("$\lvert\Psi\\rvert^2$")
     ax.set_zlabel("$\lvert\Psi\\rvert^2$")
     ax.set_ylabel("$y$")
     ax.set_xlabel("$x$")
-    fig.show()
+    plt.show()
 
 
 def create_frame(step, ax):
