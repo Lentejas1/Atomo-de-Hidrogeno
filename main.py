@@ -8,88 +8,102 @@ from functions import *
 
 plt.style.use("science")
 ########### CONDICIONES INICIALES ###########
-k_0 = 5  # Número de onda inicial (p/hbar)
-sigma_0 = 0.5  # Desviación estándar inicial
+k_0 = 2 * pi  # Número de onda inicial (p/hbar)
+sigma_0 = 1  # Desviación estándar inicial
 x_0, y_0 = 0, 0  # Coordenadas iniciales
-L = 4  # Pasos espaciales
-T = 200  # Pasos temporales
+nL = 50  # Pasos espaciales
+nT = 100  # Pasos temporales
 l = 10  # Borde del mallado (va de -l a l)
-dx = (2 * l + 1) / L  # DeltaX
-dt = 0.49 * dx ** 2
+dx = (2 * l + 1) / nL  # DeltaX
+dt = 0.25 * dx ** 2
 r = 1j * dt / (2 * dx ** 2)
 
 
 def V(n, m):
-    return 0
+    potencial = 0
+    x = (n - nL // 2) * dx  # x normalizada
+    y = (m - nL // 2) * dx
+    #coloumb(potencial, x, y)
+    slit(potencial, 4, x, y)
+    return potencial
 
 
-def alpha(i):
-    n = i // L
-    m = i % L
-    return 1 + 4 * r + 1j * dt * V(n, m)
+def coloumb(potencial, x, y):
+    try:
+        potencial += - 1 / (x ** 2 + y ** 2)
+    except ZeroDivisionError:
+        pass
 
 
-def beta(i):
-    n = i // L
-    m = i % L
-    return 1 - 4 * r - 1j * dt * V(n, m)
+def slit(potencial, X, x, y):
+    if X <= x <= X + 0.2:
+        if not -0.5 < y < 0.5:
+            potencial += 10E6
 
 
 
-
-def A_mat():
-    a = L - 2
-    mat = np.zeros((a*a, a*a), complex)
-    mat[0][0] = alpha(0)
-    mat[-1][-1] = alpha(a - 1)
-    mat[0][1] = -r
-    mat[-1][-2] = -r
-    for i in range(1, a - 1):
-        mat[i][i] = alpha(i)
-        mat[i][i - 1] = -r
-        mat[i][i + 1] = -r
-        for k in range(L, a // L - 1):
-            mat[i + k * L][i] = -r
-            mat[i - k * L][i] = -r
-    return mat
+def alpha(k):
+    n = 1 + k // (nL - 2)
+    m = 1 + k % (nL - 2)
+    return 1 + 4 * r + 1j * dt * V(n, m) / 2
 
 
-def B_mat():
-    a = L - 2
-    mat = np.zeros((a*a, a*a), complex)
-    mat[0][0] = beta(0)
-    mat[-1][-1] = beta(a - 1)
-    mat[0][1] = r
-    mat[-1][-2] = r
-    for i in range(1, a - 1):
-        mat[i][i] = beta(i)
-        mat[i][i - 1] = r
-        mat[i][i + 1] = r
-        for k in range(L, a // L - 1):
-            mat[i + k * L][i] = r
-            mat[i - k * L][i] = r
-    return mat
+def beta(k):
+    n = 1 + k // (nL - 2)
+    m = 1 + k % (nL - 2)
+    return 1 - 4 * r - 1j * dt * V(n, m) / 2
+
+
+def A_mat(L=nL):
+    D = np.zeros(((L - 2) ** 2, (L - 2) ** 2), complex)
+    E = np.zeros(((L - 2) ** 2, (L - 2) ** 2), complex)
+    for k in range(1, (L - 2) ** 2 - 1):
+        D[k][k] = alpha(k)
+        E[k][k - 1] = -r
+        E[k][k + 1] = -r
+        if k + (L - 2) < (L - 2) ** 2:
+            E[k][k + (L - 2)] = -r
+        if k - (L - 2) >= 0:
+            E[k][k - (L - 2)] = -r
+    D[0][0] = alpha(0)
+    D[-1][-1] = alpha(L - 2)
+    E[0][1] = E[-1][-2] = -r
+    return D + E
+
+
+def B_mat(L=nL):
+    D = np.zeros(((L - 2) ** 2, (L - 2) ** 2), complex)
+    E = np.zeros(((L - 2) ** 2, (L - 2) ** 2), complex)
+    for k in range(1, (L - 2) ** 2 - 1):
+        D[k][k] = beta(k)
+        E[k][k - 1] = r
+        E[k][k + 1] = r
+        if k + (L - 2) < (L - 2) ** 2:
+            E[k][k + (L - 2)] = r
+        if k - (L - 2) >= 0:
+            E[k][k - (L - 2)] = r
+    D[0][0] = beta(0)
+    D[-1][-1] = beta(L - 2)
+    E[0][1] = E[-1][-2] = r
+    return D + E
 
 
 def resolve():
-    print(array_T.shape)
-    A = A_mat()
-    B = B_mat()
-    array_TS = np.dot(inv(A), np.dot(B, array_T))
-    probs = np.zeros((L, L))
-    for i in range(L):
-        probs[i // L][i % L] = np.sqrt(np.real(array_TS[i]) ** 2 + np.imag(array_TS[i]) ** 2)
+    A_inv = np.linalg.inv(A_mat(nL))
+    B = B_mat(nL)
+    array_TS = np.dot(A_inv, np.dot(B, array_T))
+    probs = np.zeros((nL, nL))
+    for k in range((nL - 2) ** 2):
+        probs[1 + k // (nL - 2)][1 + k % (nL - 2)] = np.sqrt(np.real(array_TS[k]) ** 2 + np.imag(array_TS[k]) ** 2)
     return probs, array_TS
 
-print(A_mat())
-psis_t = gaussian_package(x_0, y_0, k_0, L, dx, sigma_0)
-print(psis_t.shape)
-psis_ts = psis_t
-array_T = np.array([psis_t[i][j] for i in range(1, L - 1) for j in range(1, L - 1)], complex).transpose()
-"""heatmap(prob(psis_ts), l).savefig(f"frames/psi_0.jpg")
-for ts in range(T):
-    array_T = resolve()[1]
-    heatmap(resolve()[0], l).savefig(f"frames/double_slit/psi_{ts+1}.jpg")
-    print(ts+1)"""
 
-
+psis_t = gaussian_package(x_0, y_0, k_0, nL - 2, dx, sigma_0)
+array_T = psis_t.flatten("C")
+heatmap(prob(psis_t), l).savefig(f"frames/slit/psi_0.jpg")
+print(f"0: mean = {np.mean(prob(psis_t))} std = {np.std(prob(psis_t))}")
+for ts in range(nT):
+    probs, array_TS = resolve()
+    heatmap(probs, l).savefig(f"frames/slit/psi_{ts + 1}.jpg")
+    print(f"{ts + 1}")
+    array_T = array_TS

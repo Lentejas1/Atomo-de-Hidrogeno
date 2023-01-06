@@ -19,8 +19,8 @@ def heatmap(psi, l):
     plt.ylabel("$y$")
     plt.xlabel("$x$")
     plt.axis('scaled')
-    #cbar = plt.colorbar()
-    #cbar.set_label("$\lvert\Psi\\rvert^2$")
+    cbar = plt.colorbar()
+    cbar.set_label("$\lvert\Psi\\rvert^2$")
     return fig
     #plt.show()
 

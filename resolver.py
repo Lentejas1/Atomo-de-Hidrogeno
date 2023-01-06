@@ -29,7 +29,7 @@ def beta(i):
 a = np.shape(array_T)[0]
 
 
-def A_mat():
+def A_mat(L=L):
     mat = np.zeros((np.shape(array_T)[0], np.shape(array_T)[0]), complex)
     mat[0][0] = alpha(0)
     mat[-1][-1] = alpha(a - 1)
