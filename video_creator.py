@@ -1,20 +1,32 @@
-import os
 import cv2
+import numpy as np
+import os
+from os.path import isfile, join
 
-path = r"C:/Users/minih/Documents/GitHub/Atomo-de-Hidrogeno/frames/free"
-archivos = sorted(os.listdir(path))
-img_array = []
 
-for x in range(0, len(archivos)):
-    nomArchivo = archivos[x]
-    dirArchivo = path + "/" + str(nomArchivo)
-    img = cv2.imread(dirArchivo)
-    img_array.append(img)
+def convertToVideo(pathIn, pathOut, fps):
+    frame_array = []
+    files = [f for f in os.listdir(pathIn) if isfile(join(pathIn, f))]
+    files.sort(key=lambda x: int((x.split(".")[0]).split(" ")[1]))  # REORDENA FRAMES
+    for i in range(len(files)):
+        filename = pathIn+files[i]
+        print(filename)
+        img=cv2.imread(filename)
+        height, width, layers = img.shape
+        size = (width, height)
 
-height, width = img.shape[:2]
-video = cv2.VideoWriter('Vídeo.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 200, (width, height))
+        frame_array.append(img)
 
-for i in range(0, len(archivos)):
-    video.write(img_array[i])
+    out = cv2.VideoWriter(pathOut, cv2.VideoWriter_fourcc(*'mp4v'), fps, size)
+    for i in range(len(frame_array)):
+        out.write(frame_array[i])
+    out.release()
+    print("TASK COMPLETED")
 
-video.release()
+#EJECUTAMOS  FUNCIÓN.
+directory = "C:/Users/minih/Documents/GitHub/Atomo-de-Hidrogeno/frames/atomo"#RUTA A LA COLECCIÓN DE FRAMES ej:'C:/Users/Antonio/Documents/Mis programas/frames'
+pathIn = directory + '/'
+pathOut = pathIn + 'animacion.avi'
+fps = 20
+time = 200/20
+convertToVideo(pathIn, pathOut, fps)

@@ -15,7 +15,7 @@ def heatmap(psi, l):
     L = np.shape(psi)[0]
     X, Y = np.meshgrid(np.linspace(-l, l, L), np.linspace(-l, l, L))
     Z = prob(psi)
-    plt.pcolormesh(X, Y, Z) # , vmin=0, vmax=0.65
+    plt.pcolormesh(X, Y, Z)  # , vmin=0, vmax=0.65
     plt.ylabel("$y$")
     plt.xlabel("$x$")
     plt.axis('scaled')
@@ -44,7 +44,7 @@ def plot3d(psi, l):
     plt.show()
 
 
-def create_frame(step, ax):
+"""def create_frame(step, ax):
     ax.cla()
     psi = gaussian_package(step, step, 0, 100, 0.1, 0.5)
     L = np.shape(psi)[0]
@@ -52,7 +52,7 @@ def create_frame(step, ax):
     plt.pcolormesh(X, Y, prob(psi))
 
     plt.ylabel("$y$")
-    plt.xlabel("$x$")
+    plt.xlabel("$x$")"""
 
 
 def animate(s):
