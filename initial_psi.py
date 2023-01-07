@@ -27,4 +27,4 @@ def gaussian_package(x_0, y_0, k_x, k_y, L, dx, sigma):
 
 
 def momentum_kick(k_x, k_y, x, y):
-    return exp(-1j * k_x * x) * exp(-1j * k_y * y)
+    return exp(1j * k_x * x) * exp(1j * k_y * y)
