@@ -11,11 +11,11 @@ plt.style.use("science")
 k_x, k_y = 0 * pi, +15 * pi  # Número de onda inicial (p/hbar)
 sigma_0 = 1  # Desviación estándar inicial
 x_0, y_0 = 0, 0  # Coordenadas iniciales
-nL = 50  # Pasos espaciales
+nL = 100  # Pasos espaciales NO CAMBIAR (si se ponen más, va hacia atrás idk why)
 nT = 300  # Pasos temporales
-l = 8  # Borde del mallado (va de -l a l)
+l = 10  # Borde del mallado (va de -l a l)
 dx = (2 * l + 1) / nL  # DeltaX
-dt = 0.25 * dx ** 2
+dt = 0.49 * dx ** 2
 r = 1j * dt / (2 * dx ** 2)
 
 
@@ -24,7 +24,7 @@ def V(n, m):
     x = (n - nL // 2) * dx  # x normalizada
     y = (m - nL // 2) * dx
     # potencial += coloumb(x, y)
-    #potencial += slit(2, x, y)
+    potencial += double_slit(4, x, y, 1)
     return potencial
 
 
@@ -35,12 +35,22 @@ def coloumb(x, y):
         return - 10E6
 
 
-def slit(slit_x, x, y):
-    if slit_x <= x <= slit_x + 0.5:
+def slit(slit_y, x, y):
+    if slit_y <= x <= slit_y + 0.5:  # No sé por qué va al revés
         if abs(y) > 0.5:
             return 10E6
         else:
             return 0
+    else:
+        return 0
+
+
+def double_slit(slit_y, x, y, d):
+    if slit_y <= x <= slit_y + 0.5:  # No sé por qué va al revés
+        if -d/2 - 0.25 <= y <= -d / 2 + 0.25 or d / 2 - 0.25 <= y <= d / 2 + 0.25:
+            return 0
+        else:
+            return 10E6
     else:
         return 0
 
