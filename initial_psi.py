@@ -1,6 +1,15 @@
-import numpy as np
-from numpy import zeros, exp, pi
-from scipy.stats import multivariate_normal
+from numpy import zeros, exp, pi, sin, rot90
+
+
+def modos_normales(k_x, k_y, l, L, dx):
+    psi_inicial = zeros((L, L), complex)  # x, y, t
+    for xs in range(L):  # xs e ys es el step espacial
+        for ys in range(L):
+            x = xs * dx  # x normalizada
+            y = ys * dx  # y normalizada
+            psi_inicial[xs][ys] = 1 / l * sin(k_x / (2*l) * x) * sin(k_y / (2*l) * y)
+    psi_inicial[0:][0] = psi_inicial[0:][-1] = psi_inicial[0][0:] = psi_inicial[-1][0:] = 0
+    return rot90(psi_inicial)
 
 
 def gaussian_package(x_0, y_0, k_x, k_y, L, dx, sigma):
@@ -23,7 +32,7 @@ def gaussian_package(x_0, y_0, k_x, k_y, L, dx, sigma):
                 -((x - x_0) ** 2 + (y - y_0) ** 2) / (2 * sigma ** 2))  # psi_0
             psi_inicial[xs][ys] *= momentum_kick(k_x, k_y, x, y)  # Momentum kick"""
     psi_inicial[0:][0] = psi_inicial[0:][L - 1] = psi_inicial[0][0:] = psi_inicial[L - 1][0:] = 0
-    return np.rot90(psi_inicial)
+    return rot90(psi_inicial)
 
 
 def momentum_kick(k_x, k_y, x, y):

@@ -1,10 +1,9 @@
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from initial_psi import *
-from functions import *
+from functions import prob
+from numpy import shape, meshgrid, linspace
 
-
-def heatmap(psi, l):
+def heatmap(psi, neg_lim, pos_lim):
     """
     :param psi: Wave function.
     :param l: Limits of our canvas. Range = (-l,l)
@@ -12,8 +11,8 @@ def heatmap(psi, l):
     """
     plt.close()
     fig = plt.figure(figsize=(16, 9))
-    L = np.shape(psi)[0]
-    X, Y = np.meshgrid(np.linspace(-l, l, L), np.linspace(-l, l, L))
+    L = shape(psi)[0]
+    X, Y = meshgrid(linspace(neg_lim, pos_lim, L), linspace(neg_lim, pos_lim, L))
     Z = prob(psi)
     plt.pcolormesh(X, Y, Z)  # , vmin=0, vmax=0.65
     plt.ylabel("$y$")
@@ -33,8 +32,8 @@ def plot3d(psi, l):
     """
     fig = plt.figure(figsize=(9, 9))
     ax = plt.axes(projection='3d')
-    L = np.shape(psi)[0]
-    X, Y = np.meshgrid(np.linspace(-l, l, L), np.linspace(-l, l, L))
+    L = shape(psi)[0]
+    X, Y = meshgrid(linspace(-l, l, L), linspace(-l, l, L))
     Z = ax.contour3D(X, Y, prob(psi), 1000, cmap=plt.cm.YlGnBu_r)
     #cbar = fig.colorbar(Z, shrink=0.5, aspect=5)
     #cbar.set_label("$\lvert\Psi\\rvert^2$")
