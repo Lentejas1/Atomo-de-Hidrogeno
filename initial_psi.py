@@ -1,18 +1,27 @@
-from numpy import zeros, exp, pi, sin, rot90
+import numpy as np
+from numpy import zeros, exp, pi, sin, rot90, sqrt
 
 
-def modos_normales(k_x, k_y, l, L, dx):
-    psi_inicial = zeros((L, L), complex)  # x, y, t
-    for xs in range(L):  # xs e ys es el step espacial
-        for ys in range(L):
-            x = xs * dx  # x normalizada
-            y = ys * dx  # y normalizada
-            psi_inicial[xs][ys] = 1 / l * sin(k_x / (2*l) * x) * sin(k_y / (2*l) * y)
+def modos_normales(X, Y, k_x, k_y, low_lim, up_lim, l, L, dx):
+    """
+
+    :param k_x: x mode
+    :param k_y: y mode
+    :param low_lim: Lower spatial limit
+    :param up_lim: Upper spatial limit
+    :param l: Length
+    :param L: Spatial steps
+    :param dx: dx
+    :return:
+    """
+    x, y = np.linspace(low_lim, up_lim + dx, L, dtype=complex), np.linspace(low_lim, up_lim + dx, L, dtype=complex)
+    X, Y = np.meshgrid(x, y)
+    psi_inicial = 1 / l * sin(k_x / (2 * l) * X) * sin(k_y / (2 * l) * Y)
     psi_inicial[0:][0] = psi_inicial[0:][-1] = psi_inicial[0][0:] = psi_inicial[-1][0:] = 0
-    return rot90(psi_inicial)
+    return psi_inicial
 
 
-def gaussian_package(x_0, y_0, k_x, k_y, L, dx, sigma):
+def gaussian_package(X, Y, x_0, y_0, k_x, k_y, low_lim, up_lim, L, dx, sigma):
     """
     :param x_0: Initial x coordinate.
     :param y_0: Initial y coordinate.
@@ -23,17 +32,27 @@ def gaussian_package(x_0, y_0, k_x, k_y, L, dx, sigma):
     dimensions.
     :return: A gaussian package centered in x_0, y_0 with a momentum kick of k_0 * hbar.
     """
-    psi_inicial = zeros((L, L), complex)  # x, y, t
-    for xs in range(L):  # xs e ys es el step espacial
-        for ys in range(L):
-            x = (xs - L // 2) * dx  # x normalizada
-            y = (ys - L // 2) * dx  # y normalizada
-            psi_inicial[xs][ys] = 1 / (2 * pi * sigma ** 2) ** (1 / 4) * exp(
-                -((x - x_0) ** 2 + (y - y_0) ** 2) / (2 * sigma ** 2))  # psi_0
-            psi_inicial[xs][ys] *= momentum_kick(k_x, k_y, x, y)  # Momentum kick"""
-    psi_inicial[0:][0] = psi_inicial[0:][L - 1] = psi_inicial[0][0:] = psi_inicial[L - 1][0:] = 0
-    return rot90(psi_inicial)
+    x, y = np.linspace(low_lim, up_lim + dx, L, dtype=complex), np.linspace(low_lim, up_lim + dx, L, dtype=complex)
+    X, Y = np.meshgrid(x, y)
+    psi_inicial = 1 / (2 * pi * sigma ** 2) ** (1 / 4) * exp(-((X - x_0) ** 2 + (Y - y_0) ** 2) / (2 * sigma ** 2)) * \
+                  momentum_kick(k_x, k_y, X, Y)
+    psi_inicial[0:][0] = psi_inicial[0:][- 1] = psi_inicial[0][0:] = psi_inicial[- 1][0:] = 0
+    return psi_inicial
 
 
-def momentum_kick(k_x, k_y, x, y):
-    return exp(1j * k_x * x) * exp(1j * k_y * y)
+def onda_plana(X, Y, A, x_0, y_0, k_x, k_y, low_lim, up_lim, L, dx):
+    x, y = np.linspace(low_lim, up_lim + dx, L, dtype=complex), np.linspace(low_lim, up_lim + dx, L, dtype=complex)
+    X, Y = np.meshgrid(x, y)
+    psi_inicial = A * exp(1j * (k_x * X + k_y * Y))
+    return psi_inicial
+
+
+def momentum_kick(k_x, k_y, X, Y):
+    return exp(1j * k_x * X) * exp(1j * k_y * Y)
+
+
+def hydrogen_bounded_state(X, Y, x_0, y_0, low_lim, up_lim, L, dx):
+
+    psi = 1/sqrt(8*pi)*exp(-sqrt(X**2+Y**2))
+    return psi
+
