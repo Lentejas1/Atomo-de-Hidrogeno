@@ -16,7 +16,7 @@ def prob(psi):
 
 def coloumb(x, y):
     try:
-        return - 1 / ((x - 4) ** 2 + y ** 2)
+        return - 1 / (x ** 2 + y ** 2)
     except ZeroDivisionError:
         return - 10E6
 

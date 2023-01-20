@@ -11,7 +11,8 @@ plt.style.use("science")
 # CONDICIONES INICIALES TÉCNICAS #
 ##################################
 
-nL = 100  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
+nL = 75  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
+ghost = 5
 nT = 200  # Pasos temporales
 l = 5  # Borde del mallado (va de -l a l o de 0 a 2l según centrado, True/False respectivamente)
 dx = (2 * l) / (nL - 1)  # DeltaX
@@ -112,31 +113,18 @@ def open_boundary_conditions(psi_array, nL, obc_switch):
     :param nL: Length steps.
     :param obc_switch: (boolean) Uses open boundary conditions or not.
     """
-    for k in range(len(psi_array)):
-        n = 1 + k // sqrt(psi_array.shape[0])
-        m = 1 + k % sqrt(psi_array.shape[0])
-        if n == 1:
-            if obc_switch:
-                psi_array[k] = psi_array[k + 1]
-            else:
-                psi_array[k] = 0
-        elif m == 1 and n != (nL-2):
-            if obc_switch:
-                psi_array[k] = psi_array[int(k + (nL - 2))]
-            else:
-                psi_array[k] = 0
-        elif n == (nL-2):
-            if obc_switch:
-                psi_array[k] = psi_array[k - 1]
-            else:
-                psi_array[k] = 0
-        elif m == sqrt(psi_array.shape[0]):
-            if obc_switch:
-                psi_array[k] = psi_array[int(k - (nL - 2))]
-            else:
-                psi_array[k] = 0
-
+    mat_psis = psi_array.reshape(nL - 2, nL - 2)
+    if obc:
+        for i in range(nL - 2):
+            mat_psis[:ghost, i] = mat_psis[ghost, i]
+            mat_psis[i, :ghost] = mat_psis[i, ghost]
+            mat_psis[ghost:, i] = mat_psis[-ghost, i]
+            mat_psis[i, ghost:] = mat_psis[-ghost, i]
+    else:
+        mat_psis[0, :] = mat_psis[-1, :] = mat_psis[:, 0] = mat_psis[:, -1] = 0
+    psi_array = psi_array.flatten("C")
     return psi_array
+
 
 
 def resolve(current_psi=current_psi):

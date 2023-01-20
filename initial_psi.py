@@ -2,7 +2,7 @@ import numpy as np
 from numpy import zeros, exp, pi, sin, rot90, sqrt
 
 
-def modos_normales(X, Y, k_x, k_y, low_lim, up_lim, l, L, dx):
+def modos_normales(X, Y, k_x, k_y, low_lim, up_lim, L, dx):
     """
 
     :param k_x: x mode
@@ -14,9 +14,10 @@ def modos_normales(X, Y, k_x, k_y, low_lim, up_lim, l, L, dx):
     :param dx: dx
     :return:
     """
+    l = up_lim-low_lim
     x, y = np.linspace(low_lim, up_lim + dx, L, dtype=complex), np.linspace(low_lim, up_lim + dx, L, dtype=complex)
     X, Y = np.meshgrid(x, y)
-    psi_inicial = 1 / l * sin(k_x / (2 * l) * X) * sin(k_y / (2 * l) * Y)
+    psi_inicial = 1 / l * sin(k_x / (2 * l) * X) * sin(k_y / (2 * l) * Y) * 1/4
     psi_inicial[0:][0] = psi_inicial[0:][-1] = psi_inicial[0][0:] = psi_inicial[-1][0:] = 0
     return psi_inicial
 
@@ -53,6 +54,6 @@ def momentum_kick(k_x, k_y, X, Y):
 
 def hydrogen_bounded_state(X, Y, x_0, y_0, low_lim, up_lim, L, dx):
 
-    psi = 1/sqrt(8*pi)*exp(-sqrt(X**2+Y**2))
+    psi = 1/sqrt(8*pi)*exp(-sqrt(X**2+Y**2)) / 1.188
     return psi
 

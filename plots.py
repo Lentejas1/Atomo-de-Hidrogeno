@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from functions import prob
-from numpy import shape, meshgrid, linspace
+from numpy import shape, meshgrid, linspace, sqrt
 
 def heatmap(psi, neg_lim, pos_lim):
     """
@@ -22,6 +22,22 @@ def heatmap(psi, neg_lim, pos_lim):
     cbar.set_label("$\lvert\Psi\\rvert^2$")
     return fig
     #plt.show()
+
+
+def real_imag(real, imag, y, lower_lim, dx, nL):
+    plt.close()
+    fig = plt.figure(figsize=(16, 9))
+    X = linspace(lower_lim, lower_lim + dx*(nL+1), nL)
+    y = int((lower_lim + y) / dx)
+    plt.plot(X, abs(real[:][y]), color="blue", label=r"$\lvert\Re(\psi)\rvert$")
+    plt.plot(X, abs(imag[:][y]), color="green", label=r"$\lvert\Im(\psi)\rvert$")
+    Z = [sqrt(real[i][y]**2 + imag[i][y]**2) for i in range(len(real))]
+    plt.plot(X, Z, color="cyan", label="$\lvert\Psi\\rvert^2$")
+    plt.xlabel("$x$")
+    plt.ylabel(r"$\rho$")
+    plt.legend()
+    return fig
+
 
 
 def plot3d(psi, l):
