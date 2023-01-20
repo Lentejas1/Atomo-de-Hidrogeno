@@ -135,7 +135,7 @@ def resolve(current_psi=current_psi):
     array_TS = np.dot(A_inv, (np.dot(B, current_psi)))
     probs_mat = np.zeros((nL, nL))
     for k in range((nL - 2) ** 2):
-        probs_mat[1 + k // (nL - 2)][1 + k % (nL - 2)] = np.sqrt(np.real(array_TS[k]) ** 2 + np.imag(array_TS[k]) ** 2)
+        probs_mat[k % (nL - 2)][k % (nL - 2)] = np.sqrt(np.real(array_TS[k]) ** 2 + np.imag(array_TS[k]) ** 2)
     return probs_mat, array_TS
 
 
