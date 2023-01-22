@@ -1,16 +1,16 @@
 from numpy import shape, zeros, sqrt, real, imag
 
 
-def prob(psi):
+def prob(nL, psi):
     """
     :param psi: Wave function.
     :return: Probability. I.e., |psi|^2.
     """
-    L = shape(psi)[0]
-    p = zeros((L, L))
-    for i in range(L):
-        for j in range(L):
-            p[i][j] = sqrt(real(psi[i][j]) ** 2 + imag(psi[i][j]) ** 2)
+    p = zeros((nL, nL))
+    for k in range(nL**2):
+        print(sqrt(real(psi[k]) ** 2 + imag(psi[k]) ** 2))
+        p[k % nL, k // nL] = sqrt(real(psi[k]) ** 2 + imag(psi[k]) ** 2)
+
     return p
 
 
