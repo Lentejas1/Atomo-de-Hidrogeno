@@ -11,15 +11,15 @@ plt.style.use("science")
 # CONDICIONES INICIALES TÉCNICAS #
 ##################################
 
-nL = 75  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
-ghost = 0
-nT = 200  # Pasos temporales
-l = 5  # Borde del mallado (va de -l a l o de 0 a 2l según centrado, True/False respectivamente)
+nL = 125  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
+ghost = 10
+nT = 400  # Pasos temporales
+l = 10  # Borde del mallado (va de -l a l o de 0 a 2l según centrado, True/False respectivamente)
 dx = (2 * l) / (nL - 1)  # DeltaX
 ratio = 0.49
 dt = ratio * dx ** 2
 r = 1j * dt / (2 * dx ** 2)
-obc = False
+obc = True
 centrado = True  # -> Falso si son modos
 
 if centrado:
@@ -35,18 +35,18 @@ X, Y = np.meshgrid(x, y)
 #####################################
 
 # PULSO
-k_x, k_y = -20 * pi, 20 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
+k_x, k_y = 20 * pi, 0 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
 sigma_0 = 1  # Desviación estándar inicial
-x_0, y_0 = 0, 0  # Coordenadas iniciales
+x_0, y_0 = 20, 20  # Coordenadas iniciales
 
 # MODOS NORMALES
 n_x, n_y = 6 * pi, 6 * pi  # Modos si es caja infinita y sus estados
 
-caso = "free"
-psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
+caso = "atomo"
+#psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
 # psi_0 = modos_normales(n_x, n_y, lower_lim, upper_lim, l, nL - 2, dx)
 # psi_0 = onda_plana(1, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL - 2, dx)
-# psi_0 = hydrogen_bounded_state(X, Y, x_0, y_0, lower_lim, upper_lim, nL - 2, dx)
+psi_0 = hydrogen_bounded_state(X, Y, x_0, y_0, lower_lim, upper_lim, nL, dx)
 current_psi = psi_0.flatten("C")
 
 
@@ -58,7 +58,7 @@ def V(n, m):
     potencial = 0
     x = (n - nL // 2) * dx  # x normalizada
     y = (m - nL // 2) * dx
-    # potencial += coloumb(x, y)
+    potencial += coloumb(x, y)
     # potencial += double_slit(4, x, y, 2, dx)
     return potencial
 
@@ -116,10 +116,16 @@ def open_boundary_conditions(psi_array, nL, obc_switch):
     mat_psis = psi_array.reshape(nL, nL)
     if obc:
         for i in range(nL):
-            mat_psis[:ghost, i] = mat_psis[ghost, i]
-            mat_psis[i, :ghost] = mat_psis[i, ghost]
-            mat_psis[ghost:, i] = mat_psis[-ghost, i]
-            mat_psis[i, ghost:] = mat_psis[-ghost, i]
+            for j in range(nL):
+                if i < ghost:
+                    mat_psis[i, j] = mat_psis[ghost, j]
+                elif i > nL - ghost:
+                    mat_psis[i, j] = mat_psis[-ghost, j]
+                if j < ghost:
+                    mat_psis[i, j] = mat_psis[i, ghost]
+                elif j > nL - ghost:
+                    mat_psis[i, j] = mat_psis[i, -ghost]
+
     else:
         mat_psis[0, :] = mat_psis[-1, :] = mat_psis[:, 0] = mat_psis[:, -1] = 0
     psi_array = psi_array.flatten("C")
@@ -130,11 +136,11 @@ def resolve(current_psi=current_psi):
     """
     :return: [0] Matrix with probabilities. [1] Next step wave
     """
-    array_TS = open_boundary_conditions(np.dot(A_inv, (np.dot(B, current_psi))), nL, obc)
+    array_TS = np.dot(A_inv, (np.dot(B, current_psi)))
     probs_mat = np.zeros((nL, nL), float)
     for k in range(nL ** 2):
         probs_mat[k % nL][k // nL] = float(np.sqrt(np.real(array_TS[k]) ** 2 + np.imag(array_TS[k]) ** 2))
-    return probs_mat, array_TS
+    return probs_mat, open_boundary_conditions(array_TS, nL, obc)
 
 
 with open(f"frames/{caso}/data.txt", "w") as f:

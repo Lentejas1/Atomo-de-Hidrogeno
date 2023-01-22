@@ -53,7 +53,6 @@ def momentum_kick(k_x, k_y, X, Y):
 
 
 def hydrogen_bounded_state(X, Y, x_0, y_0, low_lim, up_lim, L, dx):
-
-    psi = 1/sqrt(8*pi)*exp(-sqrt(X**2+Y**2)) / 1.188
+    psi = 1/sqrt(8*pi)*exp(-sqrt(X**2+Y**2)) / 1.
     return psi
 
