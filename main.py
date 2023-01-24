@@ -12,10 +12,10 @@ plt.style.use("science")
 # CONDICIONES INICIALES TÉCNICAS #
 ##################################
 
-nL = 150  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
-ghost = 20
+nL = 125  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
+ghost = 10
 nT = 200  # Pasos temporales
-l = 10  # Borde del mallado (va de -l a l o de 0 a 2l según centrado, True/False respectivamente)
+l = 4  # Borde del mallado (va de -l a l o de 0 a 2l según centrado, True/False respectivamente)
 dx = (2 * l) / (nL - 1)  # DeltaX
 ratio = 0.25
 dt = ratio * dx ** 2
@@ -28,8 +28,8 @@ if centrado:
 else:
     lower_lim, upper_lim = 0, 2 * l
 
-x = np.linspace(lower_lim, upper_lim + dx, nL, dtype=float)
-y = np.linspace(lower_lim, upper_lim + dx, nL, dtype=float)
+x = np.linspace(lower_lim, upper_lim, nL, dtype=float)
+y = np.linspace(lower_lim, upper_lim, nL, dtype=float)
 X, Y = np.meshgrid(x, y)
 #####################################
 # PARÁMETROS DE LAS FUNCIÓN DE ONDA #
@@ -38,13 +38,13 @@ X, Y = np.meshgrid(x, y)
 # PULSO
 k_x, k_y = 20 * pi, 0 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
 sigma_0 = 1  # Desviación estándar inicial
-x_0, y_0 = 20, 20  # Coordenadas iniciales
+x_0, y_0 = 0, 0  # Coordenadas iniciales
 
 # MODOS NORMALES
 n_x, n_y = 6 * pi, 6 * pi  # Modos si es caja infinita y sus estados
 
 caso = "atomo"
-#psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
+# psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
 # psi_0 = modos_normales(n_x, n_y, lower_lim, upper_lim, l, nL - 2, dx)
 # psi_0 = onda_plana(1, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL - 2, dx)
 psi_0 = hydrogen_bounded_state(X, Y, 1)
@@ -55,25 +55,26 @@ current_psi = psi_0.flatten("C")
 # POTENCIAL #
 #############
 
-def V(n, m):
-    potencial = 0
-    x = (n - nL // 2) * dx  # x normalizada
-    y = (m - nL // 2) * dx
-    potencial += coloumb(x, y)
+def V_maker():
+    potencial = np.zeros((nL, nL))
+    potencial += coloumb(X, Y)
     # potencial += double_slit(4, x, y, 2, dx)
     return potencial
+
+
+V = V_maker()
 
 
 def alpha(k):
     m = k // nL
     n = k % nL
-    return 1 + 4 * r + 1j * dt * V(n, m) / 2
+    return 1 + 4 * r + 1j * dt * V[n, m] / 2
 
 
 def beta(k):
     m = k // nL
     n = k % nL
-    return 1 - 4 * r - 1j * dt * V(n, m) / 2
+    return 1 - 4 * r - 1j * dt * V[n, m] / 2
 
 
 def A_mat(L=nL):
@@ -108,7 +109,7 @@ def B_mat(L=nL):
     return B
 
 
-def open_boundary_conditions(psi_array, nL, obc_switch):
+def open_boundary_conditions(psi_array, nL, obc):
     """
     :param psi_array: Array containing wave function
     :param nL: Length steps.
@@ -173,6 +174,7 @@ plt.xlabel("$n$")
 plt.ylabel(r"$E\sim\dfrac{p - p_0}{p_0}$")
 plt.savefig(f"frames/{caso}/error_bestia.jpg")
 
+print(sum(psi_0.flatten("C") - current_psi)/p_0)
 """def update(ts):
     probs, array_TS = resolve()
     Z = probs

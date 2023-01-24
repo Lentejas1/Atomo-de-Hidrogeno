@@ -13,9 +13,9 @@ def prob(nL, psi):
     return p
 
 
-def coloumb(x, y):
+def coloumb(X, Y):
     try:
-        return - 1 / (x ** 2 + y ** 2)
+        return - 1 / (X ** 2 + Y ** 2)
     except ZeroDivisionError:
         return - 10E6
 
