@@ -8,7 +8,6 @@ def prob(nL, psi):
     """
     p = zeros((nL, nL))
     for k in range(nL**2):
-        print(sqrt(real(psi[k]) ** 2 + imag(psi[k]) ** 2))
         p[k % nL, k // nL] = sqrt(real(psi[k]) ** 2 + imag(psi[k]) ** 2)
 
     return p

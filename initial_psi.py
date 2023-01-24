@@ -1,7 +1,6 @@
 import numpy as np
 from numpy import zeros, exp, pi, sin, rot90, sqrt
-
-
+from scipy.special import gamma
 def modos_normales(X, Y, k_x, k_y, low_lim, up_lim, L, dx):
     """
 
@@ -52,7 +51,10 @@ def momentum_kick(k_x, k_y, X, Y):
     return exp(1j * k_x * X) * exp(1j * k_y * Y)
 
 
-def hydrogen_bounded_state(X, Y, x_0, y_0, low_lim, up_lim, L, dx):
-    psi = 1/sqrt(8*pi)*exp(-sqrt(X**2+Y**2)) / 1.
+def hydrogen_bounded_state(X, Y, n):
+    if n == 1:
+        psi = 1/sqrt(4*pi)*exp(-sqrt(X**2+Y**2)/2) * sqrt((2/n)**3*1/(2*n*gamma(n)))
+    else:
+        psi = 1/sqrt(4*pi)*exp(-sqrt(X**2+Y**2)/2) * sqrt((2/n)**3*gamma(n-1)/(2*n*gamma(n)))
     return psi
 

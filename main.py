@@ -5,21 +5,22 @@ from initial_psi import *
 from plots import *
 from functions import *
 
+
 plt.style.use("science")
 
 ##################################
 # CONDICIONES INICIALES TÉCNICAS #
 ##################################
 
-nL = 125  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
-ghost = 10
-nT = 400  # Pasos temporales
+nL = 150  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
+ghost = 20
+nT = 200  # Pasos temporales
 l = 10  # Borde del mallado (va de -l a l o de 0 a 2l según centrado, True/False respectivamente)
 dx = (2 * l) / (nL - 1)  # DeltaX
-ratio = 0.49
+ratio = 0.25
 dt = ratio * dx ** 2
 r = 1j * dt / (2 * dx ** 2)
-obc = True
+obc = False
 centrado = True  # -> Falso si son modos
 
 if centrado:
@@ -46,7 +47,7 @@ caso = "atomo"
 #psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
 # psi_0 = modos_normales(n_x, n_y, lower_lim, upper_lim, l, nL - 2, dx)
 # psi_0 = onda_plana(1, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL - 2, dx)
-psi_0 = hydrogen_bounded_state(X, Y, x_0, y_0, lower_lim, upper_lim, nL, dx)
+psi_0 = hydrogen_bounded_state(X, Y, 1)
 current_psi = psi_0.flatten("C")
 
 
@@ -153,11 +154,24 @@ A_inv = np.linalg.inv(A_mat(nL))
 B = B_mat(nL)
 print(f"Initialization: OK")
 
+p_0 = sum(sum(prob(nL, current_psi))) * dx ** 2
+print(p_0)
+error = [0]
+
+
 for ts in range(nT):
     probs, next_psi = resolve(current_psi)
     heatmap(X, Y, probs).savefig(f"frames/{caso}/psi_{ts + 1}.jpg")
     print(f"{ts + 1}/{nT}")
+    error.append((sum(sum(probs)) * dx ** 2 - p_0) / p_0)
     current_psi = next_psi
+
+plt.figure(figsize=(8, 2))
+plt.plot(np.arange(0, nT + 1, 1), error, color="red")
+plt.axhline(0, ls="--")
+plt.xlabel("$n$")
+plt.ylabel(r"$E\sim\dfrac{p - p_0}{p_0}$")
+plt.savefig(f"frames/{caso}/error_bestia.jpg")
 
 """def update(ts):
     probs, array_TS = resolve()
