@@ -12,8 +12,8 @@ plt.style.use("science")
 # CONDICIONES INICIALES TÉCNICAS #
 ##################################
 
-nL = 125  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
-ghost = 10
+nL = 75  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
+ghost = 0
 nT = 200  # Pasos temporales
 l = 4  # Borde del mallado (va de -l a l o de 0 a 2l según centrado, True/False respectivamente)
 dx = (2 * l) / (nL - 1)  # DeltaX
@@ -36,18 +36,18 @@ X, Y = np.meshgrid(x, y)
 #####################################
 
 # PULSO
-k_x, k_y = 20 * pi, 0 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
-sigma_0 = 1  # Desviación estándar inicial
-x_0, y_0 = 0, 0  # Coordenadas iniciales
+k_x, k_y = 20 * pi, 20 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
+sigma_0 = 0.5  # Desviación estándar inicial
+x_0, y_0 = 2, 2  # Coordenadas iniciales
 
 # MODOS NORMALES
 n_x, n_y = 6 * pi, 6 * pi  # Modos si es caja infinita y sus estados
 
-caso = "atomo"
-# psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
+caso = "tunnelling"
+psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
 # psi_0 = modos_normales(n_x, n_y, lower_lim, upper_lim, l, nL - 2, dx)
 # psi_0 = onda_plana(1, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL - 2, dx)
-psi_0 = hydrogen_bounded_state(X, Y, 1)
+#psi_0 = hydrogen_bounded_state(X, Y, 1)
 current_psi = psi_0.flatten("C")
 
 
@@ -56,14 +56,24 @@ current_psi = psi_0.flatten("C")
 #############
 
 def V_maker():
+    xs = np.linspace(lower_lim, upper_lim, nL, dtype=float)
+    ys = np.linspace(lower_lim, upper_lim, nL, dtype=float)
     potencial = np.zeros((nL, nL))
-    potencial += coloumb(X, Y)
-    # potencial += double_slit(4, x, y, 2, dx)
+    for i in range(nL):
+        for j in range(nL):
+            #potencial[i, j] += coloumb(xs[i], ys[i])
+            potencial[i, j] += double_slit(-3, xs[i], ys[i], dx*10, dx)
+            #potencial[i, j] += tunnelling(-3, ys[i], 50, dx)
     return potencial
 
 
 V = V_maker()
 
+with open("V.csv", "w") as f:
+    for i in range(nL):
+        for j in range(nL):
+            f.write(f"{V[i, j]};")
+        f.write("\n")
 
 def alpha(k):
     m = k // nL
