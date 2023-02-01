@@ -13,9 +13,9 @@ def prob(nL, psi):
     return p
 
 
-def coloumb(X, Y):
+def coloumb(x, y):
     try:
-        return - 1 / (X ** 2 + Y ** 2)
+        return - 1 / (x ** 2 + y ** 2)
     except ZeroDivisionError:
         return - 10E6
 
@@ -31,10 +31,17 @@ def slit(slit_y, x, y):
 
 
 def double_slit(slit_y, x, y, d, dx):
-    if slit_y <= y <= slit_y + 0.5:  # No sé por qué va al revés
+    if slit_y <= y <= slit_y + dx*4:  # No sé por qué va al revés
         if -d / 2 - dx <= x <= -d / 2 + dx or d / 2 - dx <= x <= d / 2 + dx:
             return 0
         else:
-            return 10E6
+            return 50
+    else:
+        return 0
+
+
+def tunnelling(slit_y, y, height, dx):
+    if slit_y <= y <= slit_y + dx*4:
+        return height
     else:
         return 0

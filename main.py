@@ -5,16 +5,15 @@ from initial_psi import *
 from plots import *
 from functions import *
 
-
 plt.style.use("science")
 
 ##################################
 # CONDICIONES INICIALES TÉCNICAS #
 ##################################
 
-nL = 125  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
-ghost = 10
-nT = 200  # Pasos temporales
+nL = 75  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
+ghost = 0
+nT = 240  # Pasos temporales
 l = 4  # Borde del mallado (va de -l a l o de 0 a 2l según centrado, True/False respectivamente)
 dx = (2 * l) / (nL - 1)  # DeltaX
 ratio = 0.25
@@ -36,18 +35,18 @@ X, Y = np.meshgrid(x, y)
 #####################################
 
 # PULSO
-k_x, k_y = 20 * pi, 0 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
-sigma_0 = 1  # Desviación estándar inicial
+k_x, k_y = 0 * pi, 0 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
+sigma_0 = 0.5  # Desviación estándar inicial
 x_0, y_0 = 0, 0  # Coordenadas iniciales
 
 # MODOS NORMALES
 n_x, n_y = 6 * pi, 6 * pi  # Modos si es caja infinita y sus estados
 
-caso = "atomo"
-# psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
+caso = "zero_moment"
+psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
 # psi_0 = modos_normales(n_x, n_y, lower_lim, upper_lim, l, nL - 2, dx)
 # psi_0 = onda_plana(1, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL - 2, dx)
-psi_0 = hydrogen_bounded_state(X, Y, 1)
+# psi_0 = hydrogen_bounded_state(X, Y, 1)
 current_psi = psi_0.flatten("C")
 
 
@@ -56,13 +55,24 @@ current_psi = psi_0.flatten("C")
 #############
 
 def V_maker():
+    xs = np.linspace(lower_lim, upper_lim, nL, dtype=float)
+    ys = np.linspace(lower_lim, upper_lim, nL, dtype=float)
     potencial = np.zeros((nL, nL))
-    potencial += coloumb(X, Y)
-    # potencial += double_slit(4, x, y, 2, dx)
+    for i in range(nL):
+        for j in range(nL):
+            # potencial[i, j] += coloumb(xs[i], ys[i])
+            potencial[i, j] += double_slit(-3, xs[i], ys[i], dx * 10, dx)
+            # potencial[i, j] += tunnelling(-3, ys[i], 50, dx)
     return potencial
 
 
 V = V_maker()
+
+with open("V.csv", "w") as f:
+    for i in range(nL):
+        for j in range(nL):
+            f.write(f"{V[i, j]};")
+        f.write("\n")
 
 
 def alpha(k):
@@ -150,7 +160,7 @@ with open(f"frames/{caso}/data.txt", "w") as f:
         f"{caso}\t{time.ctime()}\nk_x={k_x / pi}pi\tk_y={k_y / pi}pi\ndx={dx}\t dt={dt}\t ratio={ratio}\n"
         f"timesteps={nT}\nspatial steps={nL}\t ({lower_lim},{upper_lim})\nOpen boundary conditions:{obc}")
 
-#heatmap(nL, X, Y, prob(nL, current_psi), lower_lim, upper_lim).savefig(f"frames/{caso}/psi_0.jpg")
+# heatmap(nL, X, Y, prob(nL, current_psi), lower_lim, upper_lim).savefig(f"frames/{caso}/psi_0.jpg")
 A_inv = np.linalg.inv(A_mat(nL))
 B = B_mat(nL)
 print(f"Initialization: OK")
@@ -159,45 +169,46 @@ p_0 = sum(sum(prob(nL, current_psi))) * dx ** 2
 print(p_0)
 error = [0]
 
-
-for ts in range(nT):
+"""for ts in range(nT):
     probs, next_psi = resolve(current_psi)
     heatmap(X, Y, probs).savefig(f"frames/{caso}/psi_{ts + 1}.jpg")
     print(f"{ts + 1}/{nT}")
     error.append((sum(sum(probs)) * dx ** 2 - p_0) / p_0)
     current_psi = next_psi
+"""
 
-plt.figure(figsize=(8, 2))
-plt.plot(np.arange(0, nT + 1, 1), error, color="red")
-plt.axhline(0, ls="--")
-plt.xlabel("$n$")
-plt.ylabel(r"$E\sim\dfrac{p - p_0}{p_0}$")
-plt.savefig(f"frames/{caso}/error_bestia.jpg")
+print(sum(psi_0.flatten("C") - current_psi) / p_0)
 
-print(sum(psi_0.flatten("C") - current_psi)/p_0)
-"""def update(ts):
-    probs, array_TS = resolve()
+fig = plt.figure(figsize=(16, 9))
+
+
+def update(ts):
+    probs, current_psi = resolve()
     Z = probs
-    plt.pcolormesh(X, Y, Z)  # , vmin=0, vmax=0.65
-    array_T = array_TS
+    plt.pcolormesh(X, Y, Z, vmin=0, vmax=0.65)
     print(f"{ts + 1}/{nT}")
+    plt.text(x=3, y=-3, s=f"{ts}"+" $\dfrac{\hbar}{E_h}$")
+    return fig
+
 fig = plt.figure(figsize=(16, 9))
-X, Y = np.meshgrid(np.linspace(-l, l, nL), np.linspace(-l, l, nL))
-plt.ylabel("$y$")
-plt.xlabel("$x$")
+X, Y = np.meshgrid(np.linspace(lower_lim, upper_lim, nL), np.linspace(lower_lim, upper_lim, nL))
+plt.ylabel("$y$ ($a_0$)")
+plt.xlabel("$x$ ($a_0$)")
 plt.axis('scaled')
-fig = plt.figure(figsize=(16, 9))
-def probs_inicial(array_TS):
+
+
+def probs_inicial(current_psi):
     probs = np.zeros((nL, nL))
-    for k in range((nL - 2) ** 2):
-        probs[1 + k // (nL - 2)][1 + k % (nL - 2)] = np.sqrt(np.real(array_TS[k]) ** 2 + np.imag(array_TS[k]) ** 2)
+    for k in range(nL ** 2):
+        probs[k % nL][k // nL] = np.sqrt(np.real(current_psi[k]) ** 2 + np.imag(current_psi[k]) ** 2)
     return probs
-plt.pcolormesh(X, Y, probs_inicial(array_T))  # , vmin=0, vmax=0.65
-plt.ylabel("$y$")
-plt.xlabel("$x$")
+
+
+plt.pcolormesh(X, Y, probs_inicial(current_psi), vmin=0, vmax=0.33)
+plt.ylabel("$y$ ($a_0$)")
+plt.xlabel("$x$ ($a_0$)")
 plt.axis('scaled')
 cbar = plt.colorbar()
 cbar.set_label("$\lvert\Psi\\rvert^2$")
 anim = FuncAnimation(fig, update, frames=nT)
-anim.save('double_slit.mp4', fps=24, extra_args=['-vcodec', 'libx264'])
-"""
+anim.save('sigma0_5.mp4', fps=24, extra_args=['-vcodec', 'libx264'])
