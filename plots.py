@@ -12,7 +12,7 @@ def heatmap(X, Y, probs):
     plt.close()
     fig = plt.figure(figsize=(16, 9))
     Z = probs
-    plt.pcolormesh(X, Y, Z)  # , vmin=0, vmax=1
+    plt.pcolormesh(X, Y, Z, vmin=0)
     plt.ylabel("$y$")
     plt.xlabel("$x$")
     plt.axis('scaled')

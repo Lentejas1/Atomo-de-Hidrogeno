@@ -13,7 +13,7 @@ plt.style.use("science")
 
 nL = 75  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
 ghost = 0
-nT = 240  # Pasos temporales
+nT = 200  # Pasos temporales
 l = 4  # Borde del mallado (va de -l a l o de 0 a 2l según centrado, True/False respectivamente)
 dx = (2 * l) / (nL - 1)  # DeltaX
 ratio = 0.25
@@ -35,14 +35,14 @@ X, Y = np.meshgrid(x, y)
 #####################################
 
 # PULSO
-k_x, k_y = 0 * pi, 0 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
+k_x, k_y = 20 * pi, 0 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
 sigma_0 = 0.5  # Desviación estándar inicial
-x_0, y_0 = 0, 0  # Coordenadas iniciales
+x_0, y_0 = -2, 0  # Coordenadas iniciales
 
 # MODOS NORMALES
 n_x, n_y = 6 * pi, 6 * pi  # Modos si es caja infinita y sus estados
 
-caso = "zero_moment"
+caso = "double_slit"
 psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
 # psi_0 = modos_normales(n_x, n_y, lower_lim, upper_lim, l, nL - 2, dx)
 # psi_0 = onda_plana(1, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL - 2, dx)
@@ -61,8 +61,8 @@ def V_maker():
     for i in range(nL):
         for j in range(nL):
             # potencial[i, j] += coloumb(xs[i], ys[i])
-            potencial[i, j] += double_slit(-3, xs[i], ys[i], dx * 10, dx)
-            # potencial[i, j] += tunnelling(-3, ys[i], 50, dx)
+            potencial[i, j] += double_slit(1, xs[i], ys[j], dx * 10, dx)
+            #potencial[i, j] += tunnelling(-3, ys[i], 0, dx)
     return potencial
 
 
@@ -169,26 +169,25 @@ p_0 = sum(sum(prob(nL, current_psi))) * dx ** 2
 print(p_0)
 error = [0]
 
-"""for ts in range(nT):
+for ts in range(nT):
     probs, next_psi = resolve(current_psi)
     heatmap(X, Y, probs).savefig(f"frames/{caso}/psi_{ts + 1}.jpg")
     print(f"{ts + 1}/{nT}")
     error.append((sum(sum(probs)) * dx ** 2 - p_0) / p_0)
     current_psi = next_psi
-"""
+
 
 print(sum(psi_0.flatten("C") - current_psi) / p_0)
 
-fig = plt.figure(figsize=(16, 9))
+"""fig = plt.figure(figsize=(16, 9))
 
 
 def update(ts):
     probs, current_psi = resolve()
     Z = probs
-    plt.pcolormesh(X, Y, Z, vmin=0, vmax=0.65)
+    plt.pcolormesh(X, Y, Z)  # , vmin=0, vmax=0.65
     print(f"{ts + 1}/{nT}")
-    plt.text(x=3, y=-3, s=f"{ts}"+" $\dfrac{\hbar}{E_h}$")
-    return fig
+
 
 fig = plt.figure(figsize=(16, 9))
 X, Y = np.meshgrid(np.linspace(lower_lim, upper_lim, nL), np.linspace(lower_lim, upper_lim, nL))
@@ -211,4 +210,4 @@ plt.axis('scaled')
 cbar = plt.colorbar()
 cbar.set_label("$\lvert\Psi\\rvert^2$")
 anim = FuncAnimation(fig, update, frames=nT)
-anim.save('sigma0_5.mp4', fps=24, extra_args=['-vcodec', 'libx264'])
+anim.save('double_slit.gif', fps=24) #, extra_args=['-vcodec', 'libx264']"""
