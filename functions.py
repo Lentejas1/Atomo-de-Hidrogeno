@@ -41,7 +41,7 @@ def double_slit(slit_y, x, y, d, dx):
 
 
 def tunnelling(slit_y, y, height, dx):
-    if slit_y <= y <= slit_y + dx*4:
+    if slit_y <= y <= slit_y + dx*3:
         return height
     else:
         return 0

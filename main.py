@@ -42,7 +42,7 @@ x_0, y_0 = -2, 0  # Coordenadas iniciales
 # MODOS NORMALES
 n_x, n_y = 6 * pi, 6 * pi  # Modos si es caja infinita y sus estados
 
-caso = "double_slit"
+caso = "tunnelling"
 psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
 # psi_0 = modos_normales(n_x, n_y, lower_lim, upper_lim, l, nL - 2, dx)
 # psi_0 = onda_plana(1, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL - 2, dx)
@@ -61,8 +61,9 @@ def V_maker():
     for i in range(nL):
         for j in range(nL):
             # potencial[i, j] += coloumb(xs[i], ys[i])
-            potencial[i, j] += double_slit(1, xs[i], ys[j], dx * 10, dx)
-            #potencial[i, j] += tunnelling(-3, ys[i], 0, dx)
+            #potencial[i, j] += double_slit(1, xs[i], ys[j], dx * 10, dx)
+            potencial[i, j] += tunnelling(2, ys[i], 100, dx)
+
     return potencial
 
 
