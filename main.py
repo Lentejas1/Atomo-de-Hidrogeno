@@ -11,9 +11,9 @@ plt.style.use("science")
 # CONDICIONES INICIALES TÉCNICAS #
 ##################################
 
-nL = 75  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
+nL = 125  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
 ghost = 0
-nT = 200  # Pasos temporales
+nT = 400  # Pasos temporales
 l = 4  # Borde del mallado (va de -l a l o de 0 a 2l según centrado, True/False respectivamente)
 dx = (2 * l) / (nL - 1)  # DeltaX
 ratio = 0.25
@@ -35,7 +35,7 @@ X, Y = np.meshgrid(x, y)
 #####################################
 
 # PULSO
-k_x, k_y = 20 * pi, 0 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
+k_x, k_y = 40 * pi, 0 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
 sigma_0 = 0.5  # Desviación estándar inicial
 x_0, y_0 = -2, 0  # Coordenadas iniciales
 
@@ -172,7 +172,7 @@ error = [0]
 
 for ts in range(nT):
     probs, next_psi = resolve(current_psi)
-    heatmap(X, Y, probs).savefig(f"frames/{caso}/psi_{ts + 1}.jpg")
+    heatmap(X, Y, probs, V).savefig(f"frames/{caso}/psi_{ts + 1}.jpg")
     print(f"{ts + 1}/{nT}")
     error.append((sum(sum(probs)) * dx ** 2 - p_0) / p_0)
     current_psi = next_psi

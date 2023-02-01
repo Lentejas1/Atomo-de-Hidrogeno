@@ -32,7 +32,7 @@ def slit(slit_y, x, y):
 
 def double_slit(slit_y, x, y, d, dx):
     if slit_y <= x <= slit_y + dx:  # No sé por qué va al revés
-        if -d / 2 - dx <= y <= -d / 2 + dx or d / 2 - 2*dx <= y <= d / 2 + dx:
+        if -d / 2 - dx <= y <= -d / 2 + dx or d / 2 - dx <= y <= d / 2 + dx:
             return 0
         else:
             return 10E6

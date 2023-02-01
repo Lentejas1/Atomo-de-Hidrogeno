@@ -1,9 +1,12 @@
 import matplotlib.pyplot as plt
+from matplotlib import patches
 from matplotlib.animation import FuncAnimation
 from functions import prob
 from numpy import shape, meshgrid, linspace, sqrt
+from matplotlib import patches
 
-def heatmap(X, Y, probs):
+
+def heatmap(X, Y, probs, dx):
     """
     :param psi: Wave function.
     :param l: Limits of our canvas. Range = (-l,l)
@@ -13,6 +16,7 @@ def heatmap(X, Y, probs):
     fig = plt.figure(figsize=(16, 9))
     Z = probs
     plt.pcolormesh(X, Y, Z, vmin=0)
+    patches.Rectangle((0, 3), 8, 3*dx, fill=True)
     plt.ylabel("$y$")
     plt.xlabel("$x$")
     plt.axis('scaled')
