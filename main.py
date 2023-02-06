@@ -13,7 +13,7 @@ plt.style.use("science")
 
 nL = 125  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
 ghost = 0
-nT = 400  # Pasos temporales
+nT = 200  # Pasos temporales
 l = 4  # Borde del mallado (va de -l a l o de 0 a 2l según centrado, True/False respectivamente)
 dx = (2 * l) / (nL - 1)  # DeltaX
 ratio = 0.25
@@ -42,7 +42,7 @@ x_0, y_0 = -2, 0  # Coordenadas iniciales
 # MODOS NORMALES
 n_x, n_y = 6 * pi, 6 * pi  # Modos si es caja infinita y sus estados
 
-caso = "tunnelling"
+caso = "double_slit"
 psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
 # psi_0 = modos_normales(n_x, n_y, lower_lim, upper_lim, l, nL - 2, dx)
 # psi_0 = onda_plana(1, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL - 2, dx)
@@ -61,8 +61,8 @@ def V_maker():
     for i in range(nL):
         for j in range(nL):
             # potencial[i, j] += coloumb(xs[i], ys[i])
-            #potencial[i, j] += double_slit(1, xs[i], ys[j], dx * 10, dx)
-            potencial[i, j] += tunnelling(2, ys[i], 100, dx)
+            potencial[i, j] += double_slit(1, xs[i], ys[j], dx * 10, dx)
+            #potencial[i, j] += tunnelling(0, ys[i], 100, dx)
 
     return potencial
 
@@ -172,13 +172,21 @@ error = [0]
 
 for ts in range(nT):
     probs, next_psi = resolve(current_psi)
-    heatmap(X, Y, probs, V).savefig(f"frames/{caso}/psi_{ts + 1}.jpg")
+    heatmap(X, Y, probs, dx, ts).savefig(f"frames/{caso}/psi_{ts + 1}.jpg", dpi=300)
     print(f"{ts + 1}/{nT}")
     error.append((sum(sum(probs)) * dx ** 2 - p_0) / p_0)
     current_psi = next_psi
 
 
 print(sum(psi_0.flatten("C") - current_psi) / p_0)
+
+plt.figure(figsize=(8, 2))
+plt.plot(np.arange(0, nT + 1, 1), error, color="red")
+plt.axhline(0, ls="--")
+#plt.ylim(-0.5, 0.5)
+plt.xlabel("$n$")
+plt.ylabel(r"$E\sim\dfrac{p - p_0}{p_0}$")
+plt.savefig(f"frames/{caso}/error05.jpg", dpi=300)
 
 """fig = plt.figure(figsize=(16, 9))
 

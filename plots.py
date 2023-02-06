@@ -6,19 +6,30 @@ from numpy import shape, meshgrid, linspace, sqrt
 from matplotlib import patches
 
 
-def heatmap(X, Y, probs, dx):
+def heatmap(X, Y, probs, dx, ts):
     """
     :param psi: Wave function.
     :param l: Limits of our canvas. Range = (-l,l)
     :return: Heatmap with probability density.
     """
     plt.close()
-    fig = plt.figure(figsize=(16, 9))
+    fig = plt.figure(figsize=(6, 4))
     Z = probs
-    plt.pcolormesh(X, Y, Z, vmin=0)
-    patches.Rectangle((0, 3), 8, 3*dx, fill=True)
-    plt.ylabel("$y$")
-    plt.xlabel("$x$")
+    plt.pcolormesh(X, Y, Z, vmin=0, vmax=0.35)
+    #plt.text(x=1.5, y=-3.5, s=f"$t=${ts}"+r" $\left(\dfrac{\hbar}{E_h}\right)$", color="white")
+    """plt.axhline(1, -4, -dx * 10 / 2 - dx, color="red")
+    plt.axhline(1, -dx * 10 / 2, dx * 10 / 2, color="red")
+    plt.axhline(1, dx * 10 / 2 - dx, 4, color="red")
+    plt.axhline(1+dx, -4, -dx * 10 / 2 - dx, color="red")
+    plt.axhline(1+dx, -dx * 10 / 2, dx * 10 / 2, color="red")
+    plt.axhline(1+dx, dx * 10 / 2 - dx, 4, color="red")
+    plt.axvline(-dx * 10 / 2 - dx, 1, 1+dx, color="red")
+    plt.axvline(dx * 10 / 2 - dx, 1, 1+dx, color="red")
+    plt.axvline(-dx * 10 / 2, 1, 1+dx, color="red")
+    plt.axvline(dx * 10 / 2, 1, 1+dx, color="red")"""
+
+    plt.ylabel(r"$y$ $\left(a_0\right)$")
+    plt.xlabel(r"$x$ $\left(a_0\right)$")
     plt.axis('scaled')
     cbar = plt.colorbar()
     cbar.set_label("$\lvert\Psi\\rvert^2$")
