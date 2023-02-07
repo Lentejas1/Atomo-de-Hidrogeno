@@ -35,9 +35,9 @@ X, Y = np.meshgrid(x, y)
 #####################################
 
 # PULSO
-k_x, k_y = 40 * pi, 0 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
+k_x, k_y = 40 * pi, 0 * pi  # Número de onda inicial (p/hbar)  %%% LA DIRECCIÓN NO FUNCIONA
 sigma_0 = 0.5    # Desviación estándar inicial
-x_0, y_0 = -2, 0  # Coordenadas iniciales
+x_0, y_0 = -2, 0  # Coordenadas iniciales %%% ESTÁN AL REVES, IDK WHY
 
 # MODOS NORMALES
 n_x, n_y = 6 * pi, 6 * pi  # Modos si es caja infinita y sus estados
