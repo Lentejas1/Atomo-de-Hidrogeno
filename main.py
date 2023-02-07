@@ -13,7 +13,7 @@ plt.style.use("science")
 
 nL = 125  # Pasos espaciales NO CAMBIAR de 100 (si se ponen más para un pulso, va hacia atrás idk why)
 ghost = 0
-nT = 200  # Pasos temporales
+nT = 160  # Pasos temporales
 l = 4  # Borde del mallado (va de -l a l o de 0 a 2l según centrado, True/False respectivamente)
 dx = (2 * l) / (nL - 1)  # DeltaX
 ratio = 0.25
@@ -36,13 +36,13 @@ X, Y = np.meshgrid(x, y)
 
 # PULSO
 k_x, k_y = 40 * pi, 0 * pi  # Número de onda inicial (p/hbar)   E=(k_x^2+k_y^2)/2
-sigma_0 = 0.5  # Desviación estándar inicial
+sigma_0 = 0.5    # Desviación estándar inicial
 x_0, y_0 = -2, 0  # Coordenadas iniciales
 
 # MODOS NORMALES
 n_x, n_y = 6 * pi, 6 * pi  # Modos si es caja infinita y sus estados
 
-caso = "double_slit"
+caso = "tunnelling"
 psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
 # psi_0 = modos_normales(n_x, n_y, lower_lim, upper_lim, l, nL - 2, dx)
 # psi_0 = onda_plana(1, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL - 2, dx)
@@ -54,20 +54,19 @@ current_psi = psi_0.flatten("C")
 # POTENCIAL #
 #############
 
-def V_maker():
+def V_maker(height):
     xs = np.linspace(lower_lim, upper_lim, nL, dtype=float)
     ys = np.linspace(lower_lim, upper_lim, nL, dtype=float)
     potencial = np.zeros((nL, nL))
     for i in range(nL):
         for j in range(nL):
-            # potencial[i, j] += coloumb(xs[i], ys[i])
-            potencial[i, j] += double_slit(1, xs[i], ys[j], dx * 10, dx)
-            #potencial[i, j] += tunnelling(0, ys[i], 100, dx)
+            #potencial[i, j] += coloumb(xs[i], ys[i])
+            #potencial[i, j] += double_slit(1, xs[i], ys[j], dx * 10, dx)
+            potencial[i, j] += tunnelling(0, ys[i], height, dx)
 
     return potencial
+V = V_maker(0)
 
-
-V = V_maker()
 
 with open("V.csv", "w") as f:
     for i in range(nL):
@@ -79,13 +78,13 @@ with open("V.csv", "w") as f:
 def alpha(k):
     m = k // nL
     n = k % nL
-    return 1 + 4 * r + 1j * dt * V[n, m] / 2
+    return 1 + 4 * r + 1j * dt * V[n][m] / 2
 
 
 def beta(k):
     m = k // nL
     n = k % nL
-    return 1 - 4 * r - 1j * dt * V[n, m] / 2
+    return 1 - 4 * r - 1j * dt * V[n][m] / 2
 
 
 def A_mat(L=nL):
@@ -178,15 +177,14 @@ for ts in range(nT):
     current_psi = next_psi
 
 
-print(sum(psi_0.flatten("C") - current_psi) / p_0)
 
-plt.figure(figsize=(8, 2))
+"""plt.figure(figsize=(8, 2))
 plt.plot(np.arange(0, nT + 1, 1), error, color="red")
 plt.axhline(0, ls="--")
 #plt.ylim(-0.5, 0.5)
 plt.xlabel("$n$")
 plt.ylabel(r"$E\sim\dfrac{p - p_0}{p_0}$")
-plt.savefig(f"frames/{caso}/error05.jpg", dpi=300)
+plt.savefig(f"frames/{caso}/error05.jpg", dpi=300)"""
 
 """fig = plt.figure(figsize=(16, 9))
 
@@ -220,3 +218,61 @@ cbar = plt.colorbar()
 cbar.set_label("$\lvert\Psi\\rvert^2$")
 anim = FuncAnimation(fig, update, frames=nT)
 anim.save('double_slit.gif', fps=24) #, extra_args=['-vcodec', 'libx264']"""
+caso = "tunnelling_1000"
+V = V_maker(5000)
+
+psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
+with open(f"frames/{caso}/data.txt", "w") as f:
+    f.write(
+        f"{caso}\t{time.ctime()}\nk_x={k_x / pi}pi\tk_y={k_y / pi}pi\ndx={dx}\t dt={dt}\t ratio={ratio}\n"
+        f"timesteps={nT}\nspatial steps={nL}\t ({lower_lim},{upper_lim})\nOpen boundary conditions:{obc}")
+
+# heatmap(nL, X, Y, prob(nL, current_psi), lower_lim, upper_lim).savefig(f"frames/{caso}/psi_0.jpg")
+current_psi = psi_0.flatten("C")
+print(f"Initialization: OK")
+
+p_0 = sum(sum(prob(nL, current_psi))) * dx ** 2
+print(p_0)
+error2 = [0]
+
+for ts in range(nT):
+    probs, next_psi = resolve(current_psi)
+    heatmap(X, Y, probs, dx, ts).savefig(f"frames/{caso}/psi_{ts + 1}.jpg", dpi=300)
+    print(f"{ts + 1}/{nT}")
+    error2.append((sum(sum(probs)) * dx ** 2 - p_0) / p_0)
+    current_psi = next_psi
+
+caso = "tunnelling_5000"
+V = V_maker(10000)
+
+psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
+with open(f"frames/{caso}/data.txt", "w") as f:
+    f.write(
+        f"{caso}\t{time.ctime()}\nk_x={k_x / pi}pi\tk_y={k_y / pi}pi\ndx={dx}\t dt={dt}\t ratio={ratio}\n"
+        f"timesteps={nT}\nspatial steps={nL}\t ({lower_lim},{upper_lim})\nOpen boundary conditions:{obc}")
+
+# heatmap(nL, X, Y, prob(nL, current_psi), lower_lim, upper_lim).savefig(f"frames/{caso}/psi_0.jpg")
+current_psi = psi_0.flatten("C")
+print(f"Initialization: OK")
+
+p_0 = sum(sum(prob(nL, current_psi))) * dx ** 2
+print(p_0)
+error3 = [0]
+
+for ts in range(nT):
+    probs, next_psi = resolve(current_psi)
+    heatmap(X, Y, probs, dx, ts).savefig(f"frames/{caso}/psi_{ts + 1}.jpg", dpi=300)
+    print(f"{ts + 1}/{nT}")
+    error3.append((sum(sum(probs)) * dx ** 2 - p_0) / p_0)
+    current_psi = next_psi
+
+plt.figure(figsize=(8, 2))
+plt.plot(np.arange(0, nT + 1, 1), error, color="red", label="$V=0$ $E_h$")
+plt.plot(np.arange(0, nT + 1, 1), error2, color="blue", label="$V=5 000$ $E_h$")
+plt.plot(np.arange(0, nT + 1, 1), error3, color="green", label="$V=10 000$ $E_h$")
+plt.axhline(0, ls="--", color="black", alpha=0.5)
+#plt.ylim(-0.5, 0.5)
+plt.xlabel("$n$")
+plt.ylabel(r"$E\sim\dfrac{p - p_0}{p_0}$")
+plt.legend()
+plt.savefig(f"frames/{caso}/error.jpg", dpi=300)

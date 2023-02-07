@@ -1,7 +1,7 @@
 import numpy as np
-from numpy import zeros, exp, pi, sin, rot90, sqrt
+from numpy import zeros, exp, pi, sin, rot90, sqrt, real, imag
 from scipy.special import gamma
-
+from functions import prob
 
 def modos_normales(X, Y, k_x, k_y, low_lim, up_lim, L, dx):
     """
@@ -38,7 +38,12 @@ def gaussian_package(X, Y, x_0, y_0, k_x, k_y, low_lim, up_lim, L, dx, sigma):
     x, y = np.linspace(low_lim, up_lim + dx, L, dtype=complex), np.linspace(low_lim, up_lim + dx, L, dtype=complex)
     X, Y = np.meshgrid(x, y)
     psi_inicial = exp(-((X - x_0) ** 2 + (Y - y_0) ** 2) / (4 * sigma ** 2)) * \
-                  momentum_kick(k_x, k_y, X, Y) / 3.058375284181689
+                  momentum_kick(k_x, k_y, X, Y)
+    suma = 0
+    for i in range(125):
+        for j in range(125):
+            suma += sqrt(real(psi_inicial[i, j]) ** 2 + imag(psi_inicial[i, j]) ** 2)
+    psi_inicial = psi_inicial / (suma * dx ** 2)
     psi_inicial[0:][0] = psi_inicial[0:][- 1] = psi_inicial[0][0:] = psi_inicial[- 1][0:] = 0
     #psi_inicial = np.flip(psi_inicial, axis=0)
     #psi_inicial = np.flip(psi_inicial, axis=1)
