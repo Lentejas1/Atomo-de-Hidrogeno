@@ -1,0 +1,6 @@
+free_up_125S	Mon Jan  9 09:16:52 2023
+k_x=10.0pi	k_y=14.999999999999998pi
+dx=0.16129032258064516	 dt=0.0127471383975026	 ratio=0.49
+timesteps=200
+spatial steps=125	 (-10,10)
+Open boundary conditions:False

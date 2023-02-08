@@ -15,7 +15,7 @@ def heatmap(X, Y, probs, dx, ts):
     plt.close()
     fig = plt.figure(figsize=(6, 4))
     Z = probs
-    plt.pcolormesh(X, Y, Z, vmin=0, vmax=0.35)
+    plt.pcolormesh(X, Y, Z)#, vmin=0, vmax=0.35)
     #plt.text(x=1.5, y=-3.5, s=f"$t=${ts}"+r" $\left(\dfrac{\hbar}{E_h}\right)$", color="white")
     plt.ylabel(r"$y$ $\left(a_0\right)$")
     plt.xlabel(r"$x$ $\left(a_0\right)$")

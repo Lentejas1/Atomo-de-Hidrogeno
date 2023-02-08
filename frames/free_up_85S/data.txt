@@ -1,0 +1,6 @@
+free_up_85S	Mon Jan  9 15:16:50 2023
+k_x=5.0pi	k_y=14.999999999999998pi
+dx=0.23809523809523808	 dt=0.027777777777777776	 ratio=0.49
+timesteps=20
+spatial steps=85	 (-10,10)
+Open boundary conditions:False

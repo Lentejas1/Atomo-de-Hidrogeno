@@ -19,7 +19,7 @@ dx = (2 * l) / (nL - 1)  # DeltaX
 ratio = 0.25
 dt = ratio * dx ** 2
 r = 1j * dt / (2 * dx ** 2)
-obc = False
+obc = False  # True no va
 centrado = True  # -> Falso si son modos
 
 if centrado:
@@ -65,7 +65,7 @@ def V_maker(height):
             potencial[i, j] += tunnelling(0, ys[i], height, dx)
 
     return potencial
-V = V_maker(0)
+V = V_maker(750)
 
 
 with open("V.csv", "w") as f:
@@ -78,13 +78,13 @@ with open("V.csv", "w") as f:
 def alpha(k):
     m = k // nL
     n = k % nL
-    return 1 + 4 * r + 1j * dt * V[n][m] / 2
+    return 1 + 4 * r + 1j * dt * V[n][m] / 2  # Todos los coeficcientes de dicha psi
 
 
 def beta(k):
     m = k // nL
     n = k % nL
-    return 1 - 4 * r - 1j * dt * V[n][m] / 2
+    return 1 - 4 * r - 1j * dt * V[n][m] / 2   # Todos los coeficcientes de dicha psi
 
 
 def A_mat(L=nL):
@@ -218,61 +218,11 @@ cbar = plt.colorbar()
 cbar.set_label("$\lvert\Psi\\rvert^2$")
 anim = FuncAnimation(fig, update, frames=nT)
 anim.save('double_slit.gif', fps=24) #, extra_args=['-vcodec', 'libx264']"""
-caso = "tunnelling_1000"
-V = V_maker(5000)
-
-psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
-with open(f"frames/{caso}/data.txt", "w") as f:
-    f.write(
-        f"{caso}\t{time.ctime()}\nk_x={k_x / pi}pi\tk_y={k_y / pi}pi\ndx={dx}\t dt={dt}\t ratio={ratio}\n"
-        f"timesteps={nT}\nspatial steps={nL}\t ({lower_lim},{upper_lim})\nOpen boundary conditions:{obc}")
-
-# heatmap(nL, X, Y, prob(nL, current_psi), lower_lim, upper_lim).savefig(f"frames/{caso}/psi_0.jpg")
-current_psi = psi_0.flatten("C")
-print(f"Initialization: OK")
-
-p_0 = sum(sum(prob(nL, current_psi))) * dx ** 2
-print(p_0)
-error2 = [0]
-
-for ts in range(nT):
-    probs, next_psi = resolve(current_psi)
-    heatmap(X, Y, probs, dx, ts).savefig(f"frames/{caso}/psi_{ts + 1}.jpg", dpi=300)
-    print(f"{ts + 1}/{nT}")
-    error2.append((sum(sum(probs)) * dx ** 2 - p_0) / p_0)
-    current_psi = next_psi
-
-caso = "tunnelling_5000"
-V = V_maker(10000)
-
-psi_0 = gaussian_package(X, Y, x_0, y_0, k_x, k_y, lower_lim, upper_lim, nL, dx, sigma_0)
-with open(f"frames/{caso}/data.txt", "w") as f:
-    f.write(
-        f"{caso}\t{time.ctime()}\nk_x={k_x / pi}pi\tk_y={k_y / pi}pi\ndx={dx}\t dt={dt}\t ratio={ratio}\n"
-        f"timesteps={nT}\nspatial steps={nL}\t ({lower_lim},{upper_lim})\nOpen boundary conditions:{obc}")
-
-# heatmap(nL, X, Y, prob(nL, current_psi), lower_lim, upper_lim).savefig(f"frames/{caso}/psi_0.jpg")
-current_psi = psi_0.flatten("C")
-print(f"Initialization: OK")
-
-p_0 = sum(sum(prob(nL, current_psi))) * dx ** 2
-print(p_0)
-error3 = [0]
-
-for ts in range(nT):
-    probs, next_psi = resolve(current_psi)
-    heatmap(X, Y, probs, dx, ts).savefig(f"frames/{caso}/psi_{ts + 1}.jpg", dpi=300)
-    print(f"{ts + 1}/{nT}")
-    error3.append((sum(sum(probs)) * dx ** 2 - p_0) / p_0)
-    current_psi = next_psi
 
 plt.figure(figsize=(8, 2))
-plt.plot(np.arange(0, nT + 1, 1), error, color="red", label="$V=0$ $E_h$")
-plt.plot(np.arange(0, nT + 1, 1), error2, color="blue", label="$V=5 000$ $E_h$")
-plt.plot(np.arange(0, nT + 1, 1), error3, color="green", label="$V=10 000$ $E_h$")
+plt.plot(np.arange(0, nT + 1, 1), error, color="red")
 plt.axhline(0, ls="--", color="black", alpha=0.5)
 #plt.ylim(-0.5, 0.5)
 plt.xlabel("$n$")
 plt.ylabel(r"$E\sim\dfrac{p - p_0}{p_0}$")
-plt.legend()
-plt.savefig(f"frames/{caso}/error.jpg", dpi=300)
+plt.savefig(f"frames/{caso}/error_final.jpg", dpi=300)

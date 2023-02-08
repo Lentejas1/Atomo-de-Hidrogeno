@@ -1,0 +1,6 @@
+atomo	Mon Jan 23 21:28:34 2023
+k_x=20.0pi	k_y=0.0pi
+dx=0.1342281879194631	 dt=0.004504301608035674	 ratio=0.25
+timesteps=200
+spatial steps=150	 (-10,10)
+Open boundary conditions:False

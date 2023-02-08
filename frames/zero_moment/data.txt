@@ -1,0 +1,6 @@
+zero_moment	Wed Feb  1 16:48:08 2023
+k_x=0.0pi	k_y=0.0pi
+dx=0.10810810810810811	 dt=0.002921840759678598	 ratio=0.25
+timesteps=200
+spatial steps=75	 (-4,4)
+Open boundary conditions:False

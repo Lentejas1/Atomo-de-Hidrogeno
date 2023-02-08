@@ -1,0 +1,6 @@
+modos_normales	Tue Jan 17 17:14:47 2023
+k_x=20.0pi	k_y=0.0pi
+dx=0.13513513513513514	 dt=0.004565376186997809	 ratio=0.25
+timesteps=200
+spatial steps=75	 (-5,5)
+Open boundary conditions:False

@@ -1,0 +1,6 @@
+tunnelling_1000	Wed Feb  8 21:04:28 2023
+k_x=40.0pi	k_y=0.0pi
+dx=0.06451612903225806	 dt=0.0010405827263267429	 ratio=0.25
+timesteps=160
+spatial steps=125	 (-4,4)
+Open boundary conditions:False
