@@ -1,13 +1,15 @@
 from numpy import shape, zeros, sqrt, real, imag
+from numba import njit, prange
 
 
+@njit
 def prob(nL, psi):
     """
     :param psi: Wave function.
     :return: Probability. I.e., |psi|^2.
     """
     p = zeros((nL, nL))
-    for k in range(nL**2):
+    for k in range(nL ** 2):
         p[k % nL, k // nL] = sqrt(real(psi[k]) ** 2 + imag(psi[k]) ** 2)
 
     return p
@@ -41,7 +43,7 @@ def double_slit(slit_y, x, y, d, dx):
 
 
 def tunnelling(slit_y, y, height, dx):
-    if slit_y <= y <= slit_y + dx*3:
+    if slit_y <= y <= slit_y + dx * 3:
         return height
     else:
         return 0

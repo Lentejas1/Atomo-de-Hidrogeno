@@ -4,7 +4,7 @@ from numpy.linalg import inv
 from initial_psi import *
 from plots import *
 from functions import *
-
+from numba import njit
 plt.style.use("science")
 
 ##################################
@@ -54,6 +54,7 @@ current_psi = psi_0.flatten("C")
 # POTENCIAL #
 #############
 
+@njit
 def V_maker(height):
     xs = np.linspace(lower_lim, upper_lim, nL, dtype=float)
     ys = np.linspace(lower_lim, upper_lim, nL, dtype=float)
@@ -87,6 +88,7 @@ def beta(k):
     return 1 - 4 * r - 1j * dt * V[n][m] / 2   # Todos los coeficcientes de dicha psi
 
 
+@njit
 def A_mat(L=nL):
     A = np.zeros((nL ** 2, nL ** 2), complex)
     for k in range(1, nL ** 2 - 1):
@@ -103,6 +105,7 @@ def A_mat(L=nL):
     return A
 
 
+@njit
 def B_mat(L=nL):
     B = np.zeros((nL ** 2, nL ** 2), complex)
     for k in range(1, nL ** 2 - 1):
@@ -119,6 +122,7 @@ def B_mat(L=nL):
     return B
 
 
+@njit
 def open_boundary_conditions(psi_array, nL, obc):
     """
     :param psi_array: Array containing wave function
