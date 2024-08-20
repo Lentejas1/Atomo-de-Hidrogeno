@@ -1,10 +1,9 @@
-import numpy as np
 import time
-from numpy.linalg import inv
 from initial_psi import *
 from plots import *
 from functions import *
 from numba import njit
+import scienceplots
 plt.style.use("science")
 
 ##################################
@@ -56,8 +55,8 @@ current_psi = psi_0.flatten("C")
 
 @njit
 def V_maker(height):
-    xs = np.linspace(lower_lim, upper_lim, nL, dtype=float)
-    ys = np.linspace(lower_lim, upper_lim, nL, dtype=float)
+    xs = np.linspace(lower_lim, upper_lim, nL)
+    ys = np.linspace(lower_lim, upper_lim, nL)
     potencial = np.zeros((nL, nL))
     for i in range(nL):
         for j in range(nL):
@@ -75,13 +74,13 @@ with open("V.csv", "w") as f:
             f.write(f"{V[i, j]};")
         f.write("\n")
 
-
+@njit
 def alpha(k):
     m = k // nL
     n = k % nL
     return 1 + 4 * r + 1j * dt * V[n][m] / 2  # Todos los coeficcientes de dicha psi
 
-
+@njit
 def beta(k):
     m = k // nL
     n = k % nL
@@ -90,7 +89,7 @@ def beta(k):
 
 @njit
 def A_mat(L=nL):
-    A = np.zeros((nL ** 2, nL ** 2), complex)
+    A = np.zeros((nL ** 2, nL ** 2), dtype=np.complex128)  # Cambia dtype a np.complex128
     for k in range(1, nL ** 2 - 1):
         A[k][k] = alpha(k)
         A[k][k - 1] = -r
@@ -105,9 +104,10 @@ def A_mat(L=nL):
     return A
 
 
+
 @njit
 def B_mat(L=nL):
-    B = np.zeros((nL ** 2, nL ** 2), complex)
+    B = np.zeros((nL ** 2, nL ** 2), dtype=np.complex128)  # Cambia dtype a np.complex128
     for k in range(1, nL ** 2 - 1):
         B[k][k] = beta(k)
         B[k][k - 1] = r
@@ -127,7 +127,7 @@ def open_boundary_conditions(psi_array, nL, obc):
     """
     :param psi_array: Array containing wave function
     :param nL: Length steps.
-    :param obc_switch: (boolean) Uses open boundary conditions or not.
+    :param obc: (boolean) Uses open boundary conditions or not.
     """
     mat_psis = psi_array.reshape(nL, nL)
     if obc:
