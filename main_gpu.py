@@ -1,7 +1,7 @@
 import torch
 import time
 from initial_psi_gpu import *
-from plots import *
+from plots_gpu import *
 from functions_gpu import *
 import scienceplots
 plt.style.use("science")
